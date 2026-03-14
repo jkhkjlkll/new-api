@@ -581,6 +581,7 @@ func AddChannel(c *gin.Context) {
 	}
 
 	addChannelRequest.Channel.CreatedTime = common.GetTimestamp()
+	models := addChannelRequest.Channel.GetModels()
 	keys := make([]string, 0)
 	switch addChannelRequest.Mode {
 	case "multi_to_single":
@@ -656,6 +657,14 @@ func AddChannel(c *gin.Context) {
 		return
 	}
 	service.ResetProxyClientCache()
+	if _, _, err := service.EnsureModelRatios(models, 1); err != nil {
+		common.SysError("failed to ensure model ratios: " + err.Error())
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "渠道已创建，但设置模型倍率失败，请稍后重试或手动配置",
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
