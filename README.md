@@ -120,6 +120,18 @@ nano docker-compose.yml
 docker-compose up -d
 ```
 
+#### Base Path (Local vs Production)
+
+By default the frontend is built with base `/` for local use (no nginx required).
+If you deploy under a subpath like `/newapi/`, build with a custom base and configure your reverse proxy accordingly:
+
+```bash
+# Production build under /newapi/
+docker build \
+  --build-arg VITE_BASE=/newapi/ \
+  -t new-api:prod .
+```
+
 <details>
 <summary><strong>Using Docker Commands</strong></summary>
 

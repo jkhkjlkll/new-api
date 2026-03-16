@@ -1,6 +1,8 @@
 FROM oven/bun:latest AS builder
 
 WORKDIR /build
+ARG VITE_BASE
+ENV VITE_BASE=${VITE_BASE}
 COPY web/package.json .
 COPY web/bun.lock .
 RUN bun install

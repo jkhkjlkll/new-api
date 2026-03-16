@@ -18,15 +18,26 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import react from '@vitejs/plugin-react';
-import { defineConfig, transformWithEsbuild } from 'vite';
+import { defineConfig, loadEnv, transformWithEsbuild } from 'vite';
 import pkg from '@douyinfe/vite-plugin-semi';
 import path from 'path';
 import { codeInspectorPlugin } from 'code-inspector-plugin';
 const { vitePluginSemi } = pkg;
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  base: '/newapi/',
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const rawBase = env.VITE_BASE || env.BASE_URL || '';
+  const base = rawBase
+    ? rawBase.startsWith('/')
+      ? rawBase.endsWith('/') ? rawBase : `${rawBase}/`
+      : `/${rawBase.replace(/\/?$/, '/')}`
+    : mode === 'production'
+      ? '/newapi/'
+      : '/';
+
+  return {
+    base,
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -88,21 +99,22 @@ export default defineConfig({
       },
     },
   },
-  server: {
-    host: '0.0.0.0',
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-      },
-      '/mj': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-      },
-      '/pg': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
+    server: {
+      host: '0.0.0.0',
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+        },
+        '/mj': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+        },
+        '/pg': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+        },
       },
     },
-  },
+  };
 });
